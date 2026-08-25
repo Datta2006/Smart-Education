@@ -1,0 +1,74 @@
+{
+  "year": 3,
+  "branch": "cse",
+  "title": "Interview Prep: The Placement Sprint",
+  "phases": [
+    {
+      "phase_id": "phase-1",
+      "title": "The DSA Foundation Sprint",
+      "months": "1-2",
+      "focus": "Pattern mastery, daily consistency, and the 450 sheet",
+      "tasks": [
+        "solve-love-babbar-450",
+        "master-grokking-coding-patterns",
+        "learn-dp-patterns-grokking",
+        "daily-dsa-consistency-routine",
+        "maintain-dsa-problem-log"
+      ],
+      "warnings": [
+        "memorizing-solutions-without-patterns",
+        "only-solving-easy-problems"
+      ],
+      "decisions": [
+        "dsa-sheet-which-one",
+        "python-vs-cpp-for-interviews"
+      ],
+      "mentor_notes": [
+        "stuck-on-a-dsa-problem",
+        "forgot-previously-solved-problem"
+      ],
+      "opportunities": [
+        "coding-contests-and-rated-platforms",
+        "open-source-and-hackathons"
+      ]
+    },
+    {
+      "phase_id": "phase-2",
+      "title": "Core CS + Company Questions",
+      "months": "3-4",
+      "focus": "Theory revision and company-specific question banks",
+      "tasks": [
+        "revise-core-cs-concepts",
+        "practice-top-company-questions"
+      ],
+      "warnings": [
+        "skipping-complexity-analysis"
+      ],
+      "decisions": [
+        "dsa-vs-system-design-priority"
+      ],
+      "mentor_notes": [
+        "interview-nerves-first-contest"
+      ],
+      "opportunities": []
+    },
+    {
+      "phase_id": "phase-3",
+      "title": "System Design + Full Mock Loop",
+      "months": "5-6",
+      "focus": "System design rounds and interview simulation",
+      "tasks": [
+        "study-system-design-grokking",
+        "six-week-interview-crash-course"
+      ],
+      "warnings": [
+        "last-minute-cramming"
+      ],
+      "decisions": [],
+      "mentor_notes": [
+        "placement-prep-behind-peers"
+      ],
+      "opportunities": []
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+    "year": 1,
+    "branch": "cse",
+    "title": "Year 1: The Foundation",
+    "phases": [
+        {
+            "phase_id": "phase-1",
+            "title": "The Setup & Reality Check",
+            "months": "1-2",
+            "focus": "Environment, CGPA, and Logic Basics",
+            "tasks": [
+                "touch-typing-and-shortcuts",
+                "setup-unix-dev-environment",
+                "master-one-syntax-base",
+                "college-placement-reality-check"
+            ],
+            "warnings": [
+                "polyglot-trap-year-1",
+                "ai-ml-fomo-year-1"
+            ],
+            "decisions": [
+                "cgpa-vs-projects-year-1"
+            ],
+            "mentor_notes": [
+                "feeling-behind-in-year-1",
+                "cgpa-and-college-reality"
+            ],
+            "opportunities": [
+                "early-tech-programs"
+            ]
+        },
+        {
+            "phase_id": "phase-2",
+            "title": "Logic & DSA Kickoff",
+            "months": "3-5",
+            "focus": "Striver A2Z, LeetCode, and Consistency",
+            "tasks": [
+                "start-dsa-striver-a2z"
+            ],
+            "warnings": [
+                "certificate-hoarding-year-1",
+                "tutorial-hell-no-projects"
+            ],
+            "decisions": [],
+            "mentor_notes": [],
+            "opportunities": []
+        },
+        {
+            "phase_id": "phase-3",
+            "title": "Clubs, OOPs & Hackathons",
+            "months": "6-8",
+            "focus": "Networking, Object-Oriented Programming, and Teamwork",
+            "tasks": [
+                "survive-club-recruitment-oop",
+                "first-hackathon-experience"
+            ],
+            "warnings": [],
+            "decisions": [],
+            "mentor_notes": [],
+            "opportunities": []
+        },
+        {
+            "phase_id": "phase-4",
+            "title": "Exploration & Proof",
+            "months": "9-12",
+            "focus": "Domain Selection and Avoiding Fake Internships",
+            "tasks": [],
+            "warnings": [
+                "irrelevant-internships"
+            ],
+            "decisions": [
+                "domain-exploration-fork"
+            ],
+            "mentor_notes": [],
+            "opportunities": []
+        }
+    ]
+}

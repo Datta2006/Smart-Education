@@ -1,0 +1,88 @@
+{
+    "year": 2,
+    "branch": "cse",
+    "title": "Year 2: Core Skills & First Proof",
+    "phases": [
+        {
+            "phase_id": "phase-1",
+            "title": "Core Subjects + SQL Deep Dive",
+            "months": "1-3",
+            "focus": "DBMS, OOP mastery, SQL, and first real DSA problems",
+            "tasks": [
+                "year2-master-core-cs-subjects",
+                "year2-learn-sql-databases",
+                "year2-start-competitive-programming"
+            ],
+            "warnings": [
+                "year2-framework-hopping",
+                "year2-skipping-core-subjects"
+            ],
+            "decisions": [
+                "year2-cgpa-vs-projects-year-2"
+            ],
+            "mentor_notes": [
+                "year2-imposter-syndrome",
+                "year2-stuck-in-tutorial-hell"
+            ],
+            "opportunities": [
+                "year2-gsoc-and-open-source"
+            ]
+        },
+        {
+            "phase_id": "phase-2",
+            "title": "First Real Project & Git Discipline",
+            "months": "4-6",
+            "focus": "Ship a full project, learn Git, build your GitHub presence",
+            "tasks": [
+                "year2-build-first-fullstack-project",
+                "year2-git-github-portfolio"
+            ],
+            "warnings": [],
+            "decisions": [
+                "year2-domain-choice"
+            ],
+            "mentor_notes": [
+                "year2-find-a-mentor"
+            ],
+            "opportunities": [
+                "year2-hackathon-platforms"
+            ]
+        },
+        {
+            "phase_id": "phase-3",
+            "title": "Open Source, Hackathons & CP",
+            "months": "7-9",
+            "focus": "Open-source contributions, hackathons, and competitive programming",
+            "tasks": [
+                "year2-start-competitive-programming",
+                "year2-git-github-portfolio"
+            ],
+            "warnings": [
+                "year2-comparison-trap"
+            ],
+            "decisions": [],
+            "mentor_notes": [],
+            "opportunities": [
+                "year2-gsoc-and-open-source",
+                "year2-hackathon-platforms",
+                "year2-scholarships-fellowships"
+            ]
+        },
+        {
+            "phase_id": "phase-4",
+            "title": "Internship Hunt & Mentorship",
+            "months": "10-12",
+            "focus": "First internship applications, referrals, and building your network",
+            "tasks": [
+                "year2-first-internship-application"
+            ],
+            "warnings": [],
+            "decisions": [],
+            "mentor_notes": [
+                "year2-find-a-mentor",
+                "year2-imposter-syndrome"
+            ],
+            "opportunities": []
+        }
+    ]
+}

@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+   Student OS — design tokens
+   Dark, terminal-grade, signature lime accent. One locked theme.
+--------------------------------------------------------------------------- */
+
+:root {
+  --base: 11 11 15;          /* #0B0B0F page background */
+  --panel: 19 19 24;         /* #131318 raised surface */
+  --panel-2: 26 26 34;       /* #1A1A22 higher surface */
+  --line: 38 38 47;          /* #26262F hairline border */
+  --line-2: 53 53 63;        /* #35353F strong border */
+  --ink: 234 234 240;        /* #EAEAF0 primary text */
+  --muted: 155 155 168;      /* #9B9BA8 secondary text */
+  --faint: 102 102 114;      /* #666672 tertiary text */
+  --accent: 180 243 74;      /* #B4F34A signature lime */
+  --accent-hi: 201 255 102;  /* #C9FF66 accent hover */
+  --coral: 255 107 107;      /* #FF6B6B error / wrong key */
+  --sky: 122 162 255;        /* #7AA2FF info / links */
+  --sun: 255 194 75;         /* #FFC24B focus timer */
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: rgb(var(--base));
+    color: rgb(var(--ink));
+    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  ::selection {
+    background: rgb(var(--accent) / 0.28);
+    color: rgb(var(--ink));
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgb(var(--base));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--line-2));
+    border-radius: 999px;
+    border: 2px solid rgb(var(--base));
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--faint));
+  }
+}
+
+@layer utilities {
+  .font-mono {
+    font-family: var(--font-mono), ui-monospace, "SFMono-Regular", monospace;
+  }
+
+  .text-gradient {
+    background: linear-gradient(120deg, rgb(var(--accent)), rgb(var(--sky)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .glass {
+    background: rgb(var(--panel) / 0.72);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  }
+
+  .panel-glow {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.04),
+      0 0 0 1px rgb(var(--line) / 0.6),
+      0 24px 48px -24px rgb(0 0 0 / 0.6);
+  }
+
+  .accent-glow {
+    box-shadow:
+      0 0 0 1px rgb(var(--accent) / 0.25),
+      0 8px 40px -8px rgb(var(--accent) / 0.35);
+  }
+
+  .bg-grid {
+    background-image:
+      linear-gradient(rgb(var(--line) / 0.35) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--line) / 0.35) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+
+  .mask-fade-b {
+    -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent);
+    mask-image: linear-gradient(180deg, #000 55%, transparent);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Keyframes — kept to transform/opacity only
+--------------------------------------------------------------------------- */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes shake-x {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+@keyframes caret-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+@keyframes gradient-pan {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+@keyframes ring-progress {
+  to { stroke-dashoffset: var(--ring-offset); }
+}
+@keyframes confetti-fall {
+  0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(120px) rotate(720deg); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Print stylesheet — resume / profile export
+--------------------------------------------------------------------------- */
+@media print {
+  body {
+    background: #fff;
+    color: #111;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-area {
+    display: block !important;
+  }
+  .print-surface {
+    background: #fff !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #111 !important;
+  }
+  .print-surface * {
+    color: #111 !important;
+    background: transparent !important;
+  }
+  @page {
+    margin: 18mm;
+  }
+}

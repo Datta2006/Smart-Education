@@ -1,0 +1,95 @@
+{
+  "year": 3,
+  "branch": "cse",
+  "title": "Placement Prep: DSA, Projects, and the Interview Season",
+  "phases": [
+    {
+      "phase_id": "phase-1",
+      "title": "The DSA Foundation Sprint",
+      "months": "1-3",
+      "focus": "Pattern mastery, daily consistency, and the 450 sheet",
+      "tasks": [
+        "solve-love-babbar-450",
+        "master-grokking-coding-patterns",
+        "learn-dp-patterns-grokking",
+        "daily-dsa-consistency-routine",
+        "maintain-dsa-problem-log"
+      ],
+      "warnings": [
+        "memorizing-solutions-without-patterns",
+        "only-solving-easy-problems"
+      ],
+      "decisions": [
+        "dsa-sheet-which-one",
+        "python-vs-cpp-for-interviews"
+      ],
+      "mentor_notes": [
+        "stuck-on-a-dsa-problem",
+        "forgot-previously-solved-problem"
+      ],
+      "opportunities": [
+        "coding-contests-and-rated-platforms",
+        "open-source-and-hackathons"
+      ]
+    },
+    {
+      "phase_id": "phase-2",
+      "title": "Core CS + Company Questions",
+      "months": "4-6",
+      "focus": "Theory revision and company-specific question banks",
+      "tasks": [
+        "revise-core-cs-concepts",
+        "practice-top-company-questions"
+      ],
+      "warnings": [
+        "skipping-complexity-analysis"
+      ],
+      "decisions": [
+        "dsa-vs-system-design-priority"
+      ],
+      "mentor_notes": [
+        "interview-nerves-first-contest"
+      ],
+      "opportunities": []
+    },
+    {
+      "phase_id": "phase-3",
+      "title": "Resume, Self-Intro & Application Pipeline",
+      "months": "7-9",
+      "focus": "Packaging yourself and applying off-campus",
+      "tasks": [
+        "year3-build-placement-resume",
+        "year3-prepare-self-introduction",
+        "year3-apply-offcampus-companies"
+      ],
+      "warnings": [],
+      "decisions": [],
+      "mentor_notes": [
+        "year3-explain-projects-in-interviews",
+        "year3-research-companies-before-interviews"
+      ],
+      "opportunities": [
+        "year3-offcampus-fresher-companies"
+      ]
+    },
+    {
+      "phase_id": "phase-4",
+      "title": "Mock Interviews & System Design",
+      "months": "10-12",
+      "focus": "Interview simulation, system design rounds, and avoiding cramming",
+      "tasks": [
+        "study-system-design-grokking",
+        "six-week-interview-crash-course"
+      ],
+      "warnings": [
+        "last-minute-cramming"
+      ],
+      "decisions": [],
+      "mentor_notes": [
+        "year3-mock-interview-partners",
+        "placement-prep-behind-peers"
+      ],
+      "opportunities": []
+    }
+  ]
+}

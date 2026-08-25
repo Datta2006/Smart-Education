@@ -1,0 +1,64 @@
+{
+  "year": 4,
+  "branch": "cse",
+  "title": "The Final Year: Placements, GATE, and the Big Fork",
+  "phases": [
+    {
+      "phase_id": "phase-1",
+      "title": "Placement Sprint + FYP Kickoff",
+      "months": "1-3",
+      "focus": "Aptitude + HR prep, FYP scope, and the placement season starts",
+      "tasks": [
+        "year4-aptitude-quant-preparation",
+        "year4-hr-behavioral-rounds",
+        "year4-final-year-project"
+      ],
+      "warnings": [
+        "year4-neglecting-projects-in-final-year"
+      ],
+      "decisions": [
+        "year4-job-vs-gate-vs-ms",
+        "year4-service-vs-product-company"
+      ],
+      "mentor_notes": [
+        "year4-handling-rejections",
+        "year4-peer-pressure-in-placement-season"
+      ],
+      "opportunities": []
+    },
+    {
+      "phase_id": "phase-2",
+      "title": "Offers, GATE, and the Fork Decision",
+      "months": "4-6",
+      "focus": "Offer evaluation, GATE exam, and choosing your path",
+      "tasks": [
+        "year4-first-offer-evaluation"
+      ],
+      "warnings": [
+        "year4-not-having-backup-plan"
+      ],
+      "decisions": [],
+      "mentor_notes": [
+        "year4-gate-prep-strategy"
+      ],
+      "opportunities": [
+        "year4-psu-gate-jobs"
+      ]
+    },
+    {
+      "phase_id": "phase-3",
+      "title": "MS Abroad Applications (If That's Your Fork)",
+      "months": "7-12",
+      "focus": "SOP, LORs, GRE/IELTS, and applications",
+      "tasks": [
+        "year4-ms-abroad-application"
+      ],
+      "warnings": [],
+      "decisions": [],
+      "mentor_notes": [],
+      "opportunities": [
+        "year4-ms-scholarships-abroad"
+      ]
+    }
+  ]
+}
