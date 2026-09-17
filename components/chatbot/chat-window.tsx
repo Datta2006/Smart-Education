@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { Markdown } from "@/components/kb/markdown";
 import { Sparkles, Send, Database, BookOpen, FileText, Map } from "lucide-react";
 
 interface Source {
@@ -26,54 +27,8 @@ const KIND_META: Record<string, { label: string; icon: typeof BookOpen }> = {
 };
 
 function renderAnswer(text: string) {
-  // Very small markdown-ish renderer: **bold**, bullets, paragraphs.
-  const lines = text.split("\n");
-  const nodes: React.ReactNode[] = [];
-  let list: React.ReactNode[] = [];
-  const flush = (key: number) => {
-    if (list.length) {
-      nodes.push(
-        <ul key={`ul${key}`} className="my-2 space-y-1.5">
-          {list.map((li, i) => (
-            <li key={i} className="flex gap-2">
-              <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
-              <span>{li}</span>
-            </li>
-          ))}
-        </ul>
-      );
-      list = [];
-    }
-  };
-
-  lines.forEach((line, idx) => {
-    const trimmed = line.trim();
-    if (!trimmed) return;
-    const isBullet = trimmed.startsWith("•");
-    const content = (isBullet ? trimmed.slice(1) : trimmed)
-      .split(/(\*\*[^*]+\*\*)/g)
-      .map((part, i) =>
-        part.startsWith("**") && part.endsWith("**") ? (
-          <strong key={i} className="font-semibold text-ink">
-            {part.slice(2, -2)}
-          </strong>
-        ) : (
-          part
-        )
-      );
-    if (isBullet) {
-      list.push(<span>{content}</span>);
-    } else {
-      flush(idx);
-      nodes.push(
-        <p key={`p${idx}`} className="my-1.5">
-          {content}
-        </p>
-      );
-    }
-  });
-  flush(lines.length);
-  return nodes;
+  // Reuse the KB markdown renderer with chat-sized typography.
+  return <Markdown content={text} className="text-[13px] leading-relaxed [&_p]:my-1 [&_h3]:mt-3 [&_ul]:my-1.5 [&_ol]:my-1.5" />;
 }
 
 const SUGGESTIONS = [

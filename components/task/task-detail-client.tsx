@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
 import { LocalEventLogger } from '@/lib/events/local-event-logger';
 import { Button, Badge } from '@/components/ui';
+import { Markdown } from '@/components/kb/markdown';
 import { CheckCircle2, Undo2, Clock, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -59,7 +60,7 @@ export default function TaskDetailClient({ id }: { id: string }) {
         {task.description && <p className="mt-3 text-lg text-muted">{task.description}</p>}
       </div>
 
-      <article className="whitespace-pre-wrap leading-relaxed text-ink/90">{task.content}</article>
+      <Markdown content={task.content} />
 
       <motion.div
         initial={reduce ? false : { opacity: 0, y: 12 }}

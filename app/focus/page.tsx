@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import AppShell from "@/components/layout/app-shell";
 import { FocusTimer } from "@/components/focus/focus-timer";
-import { useTyping } from "@/providers/typing-provider";
+import { useFocus } from "@/providers/focus-provider";
 import { CountUp } from "@/components/motion/count-up";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from "@/components/ui";
 import { Timer as TimerIcon, CalendarCheck2, CircleCheck } from "lucide-react";
@@ -13,18 +13,15 @@ const easeOut = [0.16, 1, 0.3, 1] as const;
 
 export default function FocusPage() {
   const reduce = useReducedMotion();
-  const { focus, addFocusSession } = useTyping();
+  const { data, stats, addSession } = useFocus();
 
   const { totalMin, todayMin, sessions } = useMemo(() => {
-    const today = new Date().toISOString().slice(0, 10);
-    let total = 0;
-    let tday = 0;
-    for (const s of focus.sessions) {
-      if (s.completed) total += s.durationMin;
-      if (s.date.slice(0, 10) === today && s.completed) tday += s.durationMin;
-    }
-    return { totalMin: total, todayMin: tday, sessions: focus.sessions };
-  }, [focus]);
+    return {
+      totalMin: stats.totalMinutes,
+      todayMin: stats.todayMinutes,
+      sessions: data.sessions,
+    };
+  }, [data, stats]);
 
   return (
     <AppShell>
@@ -48,7 +45,7 @@ export default function FocusPage() {
             transition={{ duration: 0.5, delay: 0.05, ease: easeOut }}
             className="rounded-2xl border border-line bg-panel/60 p-8 shadow-card"
           >
-            <FocusTimer onComplete={(min) => addFocusSession(min, true)} />
+            <FocusTimer onComplete={(min) => addSession(min, true)} />
           </motion.div>
 
           <div className="space-y-6">

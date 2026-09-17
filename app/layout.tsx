@@ -4,6 +4,8 @@ import "./globals.css";
 import { KBProvider } from "@/providers/kb-provider";
 import { StudentProvider } from "@/providers/student-provider";
 import { TypingProvider } from "@/providers/typing-provider";
+import { FocusProvider } from "@/providers/focus-provider";
+import { CourseProvider } from "@/providers/course-provider";
 import { loadKB } from "@/lib/kb/loader";
 import { KBSnapshot } from "@/lib/kb/loader";
 
@@ -52,7 +54,11 @@ export default async function RootLayout({
       <body className={`${display.variable} ${mono.variable} antialiased`}>
         <KBProvider initialValue={kbValue}>
           <StudentProvider>
-            <TypingProvider>{children}</TypingProvider>
+            <TypingProvider>
+              <FocusProvider>
+                <CourseProvider>{children}</CourseProvider>
+              </FocusProvider>
+            </TypingProvider>
           </StudentProvider>
         </KBProvider>
       </body>

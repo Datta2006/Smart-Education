@@ -1,6 +1,7 @@
 import { getCardById } from '@/lib/kb/registry';
 import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui';
+import { Markdown } from '@/components/kb/markdown';
 
 export default async function CardDetailPage({
   params,
@@ -29,7 +30,7 @@ export default async function CardDetailPage({
         {card.description && <p className="mt-3 text-lg text-muted">{card.description}</p>}
       </div>
 
-      <article className="whitespace-pre-wrap leading-relaxed text-ink/90">{card.content}</article>
+      <Markdown content={card.content} />
 
       {card.estimatedHours && (
         <div className="mt-10 rounded-xl border border-sky/25 bg-sky/10 p-4 text-sm text-sky">

@@ -28,14 +28,3 @@ export interface TypingStats {
   totalChars: number;
   practiceMinutes: number;
 }
-
-export interface FocusSession {
-  id: string;
-  date: string;
-  durationMin: number;
-  completed: boolean;
-}
-
-export interface FocusData {
-  sessions: FocusSession[];
-}

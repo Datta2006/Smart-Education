@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useKB } from '@/providers/kb-provider';
 import { useStudent } from '@/providers/student-provider';
+import { COURSE_CATALOG } from '@/lib/courses/catalog';
 import AppShell from '@/components/layout/app-shell';
 import { Input } from '@/components/ui';
 import type { KBType } from '@/types/kb';
+import { Binary, Network } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const FILTERS: { label: string; value: KBType | 'all' }[] = [
@@ -62,6 +64,49 @@ export default function ExplorePage() {
           </p>
         </motion.header>
 
+        {/* Courses — the learnable library */}
+        <section className="mb-10">
+          <h2 className="mb-1 font-display text-lg font-semibold text-ink">Courses</h2>
+          <p className="mb-4 text-sm text-muted">
+            Structured modules you can work through and check off.
+          </p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Link
+              href="/courses"
+              className="group rounded-2xl border border-line bg-panel/60 p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/30"
+            >
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent/10">
+                  <Binary className="h-5 w-5 text-accent" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-ink">DSA Patterns</h3>
+                  <p className="text-sm text-muted">
+                    {COURSE_CATALOG.dsa.total} problems · {COURSE_CATALOG.dsa.modules.length} pattern modules
+                  </p>
+                </div>
+              </div>
+            </Link>
+            <Link
+              href="/courses"
+              className="group rounded-2xl border border-line bg-panel/60 p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-sky/30"
+            >
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-sky/10">
+                  <Network className="h-5 w-5 text-sky" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-ink">System Design</h3>
+                  <p className="text-sm text-muted">
+                    {COURSE_CATALOG.systemDesign.total} topics · concepts + classic designs
+                  </p>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </section>
+
+        <h2 className="mb-4 font-display text-lg font-semibold text-ink">Mentor knowledge base</h2>
         <div className="mb-8 flex flex-wrap items-center gap-3">
           <Input
             value={query}

@@ -10,8 +10,7 @@
             "focus": "DBMS, OOP mastery, SQL, and first real DSA problems",
             "tasks": [
                 "year2-master-core-cs-subjects",
-                "year2-learn-sql-databases",
-                "year2-start-competitive-programming"
+                "year2-learn-sql-databases"
             ],
             "warnings": [
                 "year2-framework-hopping",
@@ -54,9 +53,8 @@
             "months": "7-9",
             "focus": "Open-source contributions, hackathons, and competitive programming",
             "tasks": [
-                "year2-start-competitive-programming",
-                "year2-git-github-portfolio"
-            ],
+                "year2-start-competitive-programming"
+           ],
             "warnings": [
                 "year2-comparison-trap"
             ],

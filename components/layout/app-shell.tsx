@@ -19,12 +19,14 @@ import {
   Timer,
   Menu,
   X,
+  GraduationCap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const NAV = [
   { href: '/dashboard', label: 'Home', icon: Home },
   { href: '/journey', label: 'Journey', icon: Map },
+  { href: '/courses', label: 'Courses', icon: GraduationCap },
   { href: '/explore', label: 'Explore', icon: Compass },
   { href: '/typing', label: 'Typing', icon: Keyboard },
   { href: '/focus', label: 'Focus', icon: Timer },

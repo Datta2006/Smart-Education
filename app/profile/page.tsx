@@ -5,20 +5,44 @@ import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import { useStudent } from "@/providers/student-provider";
 import { useTyping } from "@/providers/typing-provider";
+import { useFocus } from "@/providers/focus-provider";
+import { useCourses } from "@/providers/course-provider";
 import AppShell from "@/components/layout/app-shell";
 import { CountUp } from "@/components/motion/count-up";
 import { TypingChart } from "@/components/profile/typing-chart";
 import { ResumeBuilder } from "@/components/profile/resume-builder";
-import { Button, Badge, Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui";
+import {
+  Button,
+  Badge,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui";
 import { dailyWpmSeries, difficultyBreakdown } from "@/lib/typing/storage";
-import { Keyboard, Flame, Gauge, Target, Timer, CheckCircle2, TrendingUp } from "lucide-react";
+import { COURSE_CATALOG } from "@/lib/courses/catalog";
+import {
+  Keyboard,
+  Flame,
+  Gauge,
+  Target,
+  Timer,
+  CheckCircle2,
+  TrendingUp,
+  GraduationCap,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const easeOut = [0.16, 1, 0.3, 1] as const;
 
 export default function ProfilePage() {
   const router = useRouter();
   const reduce = useReducedMotion();
   const { student, isLoading } = useStudent();
   const { session, stats } = useTyping();
+  const { stats: focusStats } = useFocus();
+  const { overall } = useCourses();
 
   if (isLoading || !student) {
     return (
@@ -33,10 +57,9 @@ export default function ProfilePage() {
   const maxBreakdown = Math.max(...breakdown.map((b) => b.count), 1);
   const hasData = session.tests.length > 0;
 
-  const skillList = [
-    ...student.skills,
-    ...(hasData ? ["Touch typing"] : []),
-  ].filter((v, i, a) => a.indexOf(v) === i);
+  const skillList = [...student.skills, ...(hasData ? ["Touch typing"] : [])].filter(
+    (v, i, a) => a.indexOf(v) === i
+  );
 
   const statCards = [
     { icon: Keyboard, label: "Tests", value: stats.tests, suffix: "", color: "text-accent" },
@@ -54,7 +77,7 @@ export default function ProfilePage() {
         <motion.div
           initial={reduce ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, ease: easeOut }}
           className="mb-8 flex flex-wrap items-start justify-between gap-4"
         >
           <div className="flex items-center gap-4">
@@ -66,7 +89,8 @@ export default function ProfilePage() {
                 {student.name}
               </h1>
               <p className="text-muted">
-                Year {student.year} · {student.degree} · {student.branch.toUpperCase()} · Semester {student.semester}
+                Year {student.year} · {student.degree} · {student.branch.toUpperCase()} ·
+                Semester {student.semester}
               </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {student.goals.map((g) => (
@@ -87,11 +111,11 @@ export default function ProfilePage() {
           </div>
         </motion.div>
 
-        {/* Stats */}
+        {/* Typing stats */}
         <motion.div
           initial={reduce ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, delay: 0.05, ease: easeOut }}
           className="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"
         >
           {statCards.map((s) => (
@@ -105,12 +129,71 @@ export default function ProfilePage() {
           ))}
         </motion.div>
 
+        {/* Focus + course progress strip */}
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.08, ease: easeOut }}
+          className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3"
+        >
+          <Link
+            href="/focus"
+            className="group flex items-center gap-4 rounded-2xl border border-line bg-panel/60 px-5 py-4 shadow-card transition-colors hover:border-sun/30"
+          >
+            <Timer className="h-8 w-8 text-sun" />
+            <div>
+              <div className="font-mono text-xl font-semibold text-ink">
+                <CountUp value={focusStats.totalMinutes} suffix="m" />
+              </div>
+              <div className="text-[11px] uppercase tracking-wider text-faint">
+                deep work · {focusStats.sessionCount} sessions
+              </div>
+            </div>
+          </Link>
+          <Link
+            href="/courses"
+            className="group flex items-center gap-4 rounded-2xl border border-line bg-panel/60 px-5 py-4 shadow-card transition-colors hover:border-accent/30"
+          >
+            <GraduationCap className="h-8 w-8 text-accent" />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline justify-between">
+                <span className="font-mono text-xl font-semibold text-ink">
+                  <CountUp value={overall.pct} suffix="%" />
+                </span>
+                <span className="font-mono text-[11px] text-faint">
+                  {overall.done}/{overall.total}
+                </span>
+              </div>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-panel-2">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-accent to-sky"
+                  style={{ width: `${overall.pct}%` }}
+                />
+              </div>
+              <div className="mt-1 text-[11px] uppercase tracking-wider text-faint">
+                course progress
+              </div>
+            </div>
+          </Link>
+          <div className="flex items-center gap-4 rounded-2xl border border-line bg-panel/60 px-5 py-4 shadow-card">
+            <Flame className="h-8 w-8 text-coral" />
+            <div>
+              <div className="font-mono text-xl font-semibold text-ink">
+                <CountUp value={focusStats.streakDays} suffix="d" />
+              </div>
+              <div className="text-[11px] uppercase tracking-wider text-faint">
+                focus streak
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Typing analytics */}
+          {/* Analytics column */}
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, delay: 0.1, ease: easeOut }}
             className="lg:col-span-2 space-y-6"
           >
             <Card>
@@ -180,6 +263,11 @@ export default function ProfilePage() {
                 <CardDescription>From your profile, plus skills earned by using the app</CardDescription>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
+                {skillList.length === 0 && (
+                  <p className="text-sm text-faint">
+                    Add skills in Settings — they show up here and in your resume.
+                  </p>
+                )}
                 {skillList.map((sk) => (
                   <Badge key={sk} variant="default" size="lg" className="border-accent/25 text-ink">
                     {sk}
@@ -189,20 +277,37 @@ export default function ProfilePage() {
             </Card>
           </motion.div>
 
-          {/* Resume */}
+          {/* Resume column */}
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, delay: 0.15, ease: easeOut }}
           >
             <div className="lg:sticky lg:top-24 space-y-6">
-              <Card>
+              <Card className="print:hidden">
                 <CardHeader>
-                  <CardTitle size="lg">Resume builder</CardTitle>
-                  <CardDescription>Edit sections, preview, print or save as PDF</CardDescription>
+                  <CardTitle size="lg">Resume — Jake's format</CardTitle>
+                  <CardDescription>
+                    One-page, ATS-safe. Edit, preview and print below.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ResumeBuilder studentSkills={student.skills} />
+                  <p className="text-sm text-muted">
+                    Your resume uses the single-column Jake&apos;s Resume layout: header,
+                    education, experience, projects, skills — the format recruiters and
+                    ATS parsers expect.
+                  </p>
+                  <Button
+                    variant="accent"
+                    size="sm"
+                    className="mt-4 w-full"
+                    onClick={() => {
+                      const el = document.getElementById("resume-section");
+                      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                  >
+                    Open resume builder ↓
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -231,6 +336,21 @@ export default function ProfilePage() {
             </div>
           </motion.div>
         </div>
+
+        {/* Full-width resume builder */}
+        <section id="resume-section" className="mt-10">
+          <Card>
+            <CardHeader>
+              <CardTitle size="lg">Resume builder</CardTitle>
+              <CardDescription>
+                Structured sections render into a one-page resume — print or save as PDF
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResumeBuilder studentName={student.name} />
+            </CardContent>
+          </Card>
+        </section>
       </div>
     </AppShell>
   );

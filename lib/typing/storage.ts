@@ -1,7 +1,6 @@
-import type { FocusData, TypingSession, TypingStats } from "./types";
+import type { TypingSession, TypingStats } from "./types";
 
 const TYPING_KEY = "sos_typing_data";
-const FOCUS_KEY = "sos_focus_data";
 
 function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -28,14 +27,6 @@ export function loadTypingSession(): TypingSession {
 
 export function saveTypingSession(session: TypingSession): void {
   write(TYPING_KEY, session);
-}
-
-export function loadFocusData(): FocusData {
-  return read<FocusData>(FOCUS_KEY, { sessions: [] });
-}
-
-export function saveFocusData(data: FocusData): void {
-  write(FOCUS_KEY, data);
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -90,7 +81,9 @@ export function computeStats(session: TypingSession): TypingStats {
   };
 }
 
-export function dailyWpmSeries(session: TypingSession): Array<{ date: string; value: number; label: string }> {
+export function dailyWpmSeries(
+  session: TypingSession
+): Array<{ date: string; value: number; label: string }> {
   const byDay = new Map<string, number[]>();
   for (const t of testsInLastNDays(session, 14)) {
     const key = dayKey(t.date);

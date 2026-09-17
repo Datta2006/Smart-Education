@@ -11,20 +11,26 @@ external configuration (no database, no AI API key).
 
 ## Features
 
-- **Typing lab** (`/typing`) — a one-button typing test. Text is randomly generated at
-  test time (not normal words) across four difficulties: `easy` (lowercase), `medium`
-  (mixed case), `hard` (+ digits), `extreme` (+ special characters). Live WPM, accuracy
-  and consistency during the run; every test is saved to `localStorage` and feeds your
-  profile analytics.
+- **Typing lab** (`/typing`) — a one-button typing test over **real English words**
+  (frequency-ranked vocabulary; difficulty adds capitalization, digits, punctuation and
+  tech terms). Live WPM, accuracy and consistency during the run; every test is saved to
+  `localStorage` and feeds your profile analytics.
 - **Focus timer** (`/focus`) — 10/25/50-minute deep-work sessions with an animated
-  progress ring; completed blocks are tracked and counted.
+  progress ring; completed blocks are tracked and counted (own `FocusProvider` domain).
+- **Courses** (`/courses`) — the full interview-prep library made visible: **121 DSA
+  problems** across 24 pattern/DP modules, **28 system design topics** (concepts +
+  classic designs), and curated sheets (Love Babbar 450, Grokking, Striver A2Z).
+  Checkable items with per-module and overall progress, difficulty filters, and
+  LeetCode links.
 - **KB chatbot** (`/mentor`) — a real retrieval chatbot with **no external LLM**. It
   builds a local vector index over the knowledge base (hashed word + char-trigram
   embeddings, cosine similarity) and answers by retrieving + trimming the most relevant
-  snippets, citing its sources. Runs fully on-device via `POST /api/chat`.
-- **Profile / resume** (`/profile`) — an animated typing-speed chart (last 14 days), a
-  per-difficulty breakdown, a skills board, a resume builder with live preview, and
-  print / save-as-PDF via `window.print()`.
+  snippets, citing its sources. Runs fully on-device via `POST /api/chat`. Answers render
+  through the shared KB markdown renderer.
+- **Profile / resume** (`/profile`) — typing-speed analytics, focus-time analytics,
+  course progress, a skills board, and a **Jake's Resume format one-pager** builder
+  (structured header/education/experience/projects/skills sections, ATS-safe single
+  column, print / save-as-PDF via `window.print()`).
 - **Personalized mentoring** — journey map, "Today's Top 3" recommendations, warnings,
   opportunities, and a deterministic KB-grounded mentor. No LLM in the decision loop.
 
@@ -231,12 +237,17 @@ The mock `MockMentorProvider` is grounded in KB content only and is the default.
 ## Project structure
 
 ```
-app/            landing, onboarding, dashboard, journey, explore, typing, focus, mentor,
-                profile, settings, weekly-review, admin/kb, tasks/[id], cards/[id],
-                api/chat (vector retrieval endpoint)
-components/     ui/ motion/ typing/ focus/ chatbot/ profile/ layout/ landing/ admin/
-providers/      KBProvider (hydrated KB) + StudentProvider + TypingProvider (local state)
-lib/typing      generator (random text per difficulty) + storage + stats
+app/            landing, onboarding, dashboard, journey, courses (+ dsa & system-design
+                detail pages), explore, typing, focus, mentor, profile, settings,
+                weekly-review, admin/kb, tasks/[id], cards/[id], api/chat
+components/     ui/ motion/ typing/ focus/ chatbot/ profile/ kb/ (markdown renderer)
+                layout/ landing/ admin/
+providers/      KBProvider (hydrated KB) + StudentProvider + TypingProvider
+                + FocusProvider + CourseProvider (each its own localStorage domain)
+lib/typing      real-word generator + typing storage + stats
+lib/focus       focus session types + storage + stats (split from typing)
+lib/resume      Jake's Resume data model + persistence + legacy migration
+lib/courses     generated course catalog (from kb/sql seeds) + progress model
 lib/kb          schemas → loader → registry + vector-store + corpus (server-side, cached)
 lib/journey/    segment-resolver → journey-engine
 lib/recommendations/ scoring + engine (pure)
@@ -245,8 +256,9 @@ lib/mentor/     context builder + provider + mock
 lib/events/     event logger
 lib/config/     env.ts (single seam for capability flags)
 types/          kb.ts student.ts journey.ts recommendation.ts result.ts
-tests/          vitest for the pure domain (2024-08-08: 24 passing)
+tests/          vitest for the pure domain layer
 content/kb/     the mentor knowledge base (source of truth)
+scripts/        extract-courses.js — regenerates lib/courses/catalog.ts from kb/sql
 ```
 
 ## Running tests

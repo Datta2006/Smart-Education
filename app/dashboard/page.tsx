@@ -14,7 +14,7 @@ import AppShell from '@/components/layout/app-shell';
 import { CountUp } from '@/components/motion/count-up';
 import { SpringCard } from '@/components/motion/spring-card';
 import { Button } from '@/components/ui';
-import { Clock, Lightbulb, AlertTriangle, ArrowRight, Keyboard, Timer, MessagesSquare } from 'lucide-react';
+import { Clock, Lightbulb, AlertTriangle, ArrowRight, Keyboard, Timer, MessagesSquare, GraduationCap } from 'lucide-react';
 import type { JourneyView } from '@/types/journey';
 import type { RecommendationResult } from '@/types/recommendation';
 import type { KBCard } from '@/types/kb';
@@ -84,9 +84,10 @@ export default function Dashboard() {
   const opps = phase.opportunities;
 
   const quickActions = [
-    { href: '/typing', icon: Keyboard, label: 'Typing test', sub: stats.tests > 0 ? `best ${stats.maxWpm} wpm` : '1-min drill', accent: 'text-accent' },
+    { href: '/courses', icon: GraduationCap, label: 'Courses', sub: 'DSA · System Design', accent: 'text-accent' },
+    { href: '/typing', icon: Keyboard, label: 'Typing test', sub: stats.tests > 0 ? `best ${stats.maxWpm} wpm` : '1-min drill', accent: 'text-sky' },
     { href: '/focus', icon: Timer, label: 'Focus timer', sub: 'Deep work session', accent: 'text-sun' },
-    { href: '/mentor', icon: MessagesSquare, label: 'Ask mentor', sub: 'KB answers', accent: 'text-sky' },
+    { href: '/mentor', icon: MessagesSquare, label: 'Ask mentor', sub: 'KB answers', accent: 'text-muted' },
   ];
 
   return (
@@ -112,7 +113,7 @@ export default function Dashboard() {
           initial={reduce ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.05, ease: easeOut }}
-          className="mb-6 grid grid-cols-3 gap-3"
+          className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4"
         >
           {quickActions.map((a) => (
             <SpringCard key={a.href}>

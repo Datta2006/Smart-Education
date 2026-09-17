@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -89,12 +89,6 @@ export default function TypingPage() {
       start();
     }
   };
-
-  useEffect(() => {
-    if (phase === "running") {
-      setDifficulty(difficulty); // keep engine in sync
-    }
-  }, [difficulty, phase]);
 
   const isRunning = phase === "running";
 
