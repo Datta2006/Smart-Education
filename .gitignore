@@ -4,6 +4,7 @@ out
 build
 resources/
 kb/knowledge-base/
+kb/index/
 .env
 .env.local
 .env*.local

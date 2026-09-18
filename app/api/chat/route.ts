@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getVectorStore } from "@/lib/kb/corpus";
-import { significantTerms, extractRelevant, type ScoredDoc } from "@/lib/kb/vector-store";
+import { getRetrievalIndex } from "@/lib/kb/corpus";
+import { retrieve, confidenceOf } from "@/lib/kb/retrieval";
+import { significantTerms, extractRelevant } from "@/lib/kb/vector-store";
+import { generateGrounded, isLlmEnabled } from "@/lib/kb/llm";
 
 export const runtime = "nodejs";
 
@@ -15,32 +17,52 @@ const SUGGESTIONS = [
   "What is recursion?",
 ];
 
-function buildAnswer(docs: ScoredDoc[], query: string): string {
-  const terms = significantTerms(query);
+const NO_MATCH_ANSWER =
+  "I couldn't find a confident match for that in the knowledge base. Try rephrasing with keywords like the topic or concept you're curious about — or pick a suggestion below.";
+
+interface ChatMessage {
+  role: string;
+  content: string;
+}
+
+/**
+ * Local extractive answerer (default — zero external calls).
+ * Builds a compact answer from the top chunks: lead paragraph + bullets,
+ * with [n] markers matching the sources array.
+ */
+function buildExtractiveAnswer(
+  message: string,
+  top: ReturnType<typeof retrieve>["top"]
+): string {
+  const terms = significantTerms(message);
   const lines: string[] = [];
-  let total = 0;
 
-  for (const doc of docs) {
-    const snippet = extractRelevant(doc.content, terms);
-    if (!snippet) continue;
-    lines.push(`• ${snippet}`);
-    total++;
-  }
+  top.forEach((c, i) => {
+    const snippet = extractRelevant(c.doc.content, terms);
+    if (!snippet) return;
+    lines.push(`**[${i + 1}] ${c.doc.title}${c.doc.section ? ` — ${c.doc.section}` : ""}**\n${snippet}`);
+  });
 
-  if (total === 0) return "";
+  if (lines.length === 0) return "";
 
   const intro =
-    total === 1
+    lines.length === 1
       ? `Here's the closest match in the knowledge base:`
-      : `Here's what the knowledge base says (${total} sources):`;
-  return [intro, ...lines.slice(0, 5)].join("\n\n");
+      : `Here's what the knowledge base says (${lines.length} sources):`;
+
+  return [intro, ...lines].join("\n\n");
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const message = typeof body?.message === "string" ? body.message.trim() : "";
-  const history: Array<{ role: string; content: string }> = Array.isArray(body?.history)
-    ? body.history
+  const history: ChatMessage[] = Array.isArray(body?.history)
+    ? body.history.filter(
+        (m: unknown): m is ChatMessage =>
+          Boolean(m) &&
+          typeof (m as ChatMessage).role === "string" &&
+          typeof (m as ChatMessage).content === "string"
+      )
     : [];
 
   if (!message) {
@@ -51,45 +73,52 @@ export async function POST(req: NextRequest) {
   if (GREETINGS.test(message)) {
     return NextResponse.json({
       answer:
-        "Hey! I search this platform's knowledge base — interview prep, DSA patterns, system design, OS, DBMS and mentor advice — and answer from what I find. No external AI, everything runs locally. Try one of the questions below.",
+        "Hey! I search this platform's knowledge base — interview prep, DSA patterns, system design, OS, DBMS and mentor advice — and answer from what I find. Try one of the questions below.",
       sources: [],
       suggestions: SUGGESTIONS,
     });
   }
 
-  // Fold recent context into the query for follow-up questions.
-  const context = history
-    .slice(-4)
-    .filter((m) => m.role === "user")
-    .map((m) => m.content)
-    .join(" ");
-
-  const query = `${context} ${message}`.trim();
-
   try {
-    const store = await getVectorStore();
-    const docs = store.search(query, 6);
+    const { index, bm25 } = await getRetrievalIndex();
+    const started = Date.now();
 
-    if (docs.length === 0) {
+    const result = retrieve(message, history, index, bm25, {
+      debug: process.env.KB_DEBUG ? console.debug.bind(console) : undefined,
+    });
+
+    if (result.top.length === 0) {
       return NextResponse.json({
-        answer:
-          "I couldn't find a confident match for that in the knowledge base. Try rephrasing with keywords like the topic or concept you're curious about — or pick a suggestion below.",
+        answer: NO_MATCH_ANSWER,
         sources: [],
         suggestions: SUGGESTIONS,
+        corpusSize: index.docs.length,
       });
     }
 
-    const answer = buildAnswer(docs, message);
-    const sources = docs.slice(0, 5).map((d) => ({
-      title: d.title,
-      path: d.path,
-      kind: d.kind,
-      score: Math.round(d.score * 1000) / 1000,
+    // Generation: grounded LLM if configured, local extractive otherwise.
+    const generated = await generateGrounded(message, history, result.top);
+    const answer = generated?.answer ?? buildExtractiveAnswer(message, result.top);
+    if (generated) console.log(`[chat] answered via ${generated.via}`);
+
+    const sources = result.top.map((c, i) => ({
+      title: c.doc.title,
+      path: c.doc.path,
+      kind: c.doc.kind,
+      section: c.doc.section ?? "",
+      score: Math.round(confidenceOf(c) * 1000) / 1000,
+      ref: i + 1,
     }));
+
+    console.log(
+      `[chat] q="${message.slice(0, 60)}" followUp=${result.isFollowUp} ` +
+        `chunks=${result.top.length}/${result.candidates.length} ` +
+        `${Date.now() - started}ms${isLlmEnabled() ? " llm" : " local"}`
+    );
 
     const suggestions = [
       ...new Set([
-        ...docs.slice(0, 3).map((d) => `Tell me more about ${d.title.toLowerCase()}`),
+        ...result.top.slice(0, 3).map((c) => `Tell me more about ${c.doc.title.toLowerCase()}`),
         ...SUGGESTIONS,
       ]),
     ].slice(0, 4);
@@ -98,7 +127,7 @@ export async function POST(req: NextRequest) {
       answer,
       sources,
       suggestions,
-      corpusSize: store.size,
+      corpusSize: index.docs.length,
     });
   } catch (err) {
     console.error("[chat] failed", err);

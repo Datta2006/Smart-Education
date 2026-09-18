@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "kb:build": "NODE_OPTIONS=--conditions=react-server tsx scripts/build-kb-index.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",
@@ -34,8 +35,10 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "jsdom": "^24.0.0",
+    "pdf-parse": "^1.1.4",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.23.13",
     "typescript": "^5",
     "vitest": "^1.6.0"
   }

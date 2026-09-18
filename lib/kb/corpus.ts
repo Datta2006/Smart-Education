@@ -1,139 +1,78 @@
 import "server-only";
-import fs from "fs/promises";
-import path from "path";
-import { loadKB } from "./loader";
-import { VectorStore, type StoredDoc } from "./vector-store";
+import { readIndex, hydrateIndex, buildIndexFromChunks, fingerprintsEqual, INDEX_FILE, type BuiltIndex, type SourceFingerprint } from "./index-file";
+import { chunkDoc, type RawSourceDoc } from "./chunker";
+import { buildBm25 } from "./retrieval";
+import { collectSources } from "./sources";
 
 /**
- * Builds the searchable corpus: mentoring cards + the deep knowledge-base
- * (subject notes, tutorials, cheatsheets and roadmap cards). Built lazily
- * once and cached in memory.
+ * Server-side retrieval index for /api/chat.
+ *
+ * Loads the persisted index (kb/index/kb-index.json, built offline by
+ * `npm run kb:build`) and caches it in memory. Chunking + embedding are
+ * never done per query; the in-memory fallback below only runs when the
+ * persisted index is missing/stale-format, so dev stays unbroken.
  */
 
-const CWD = process.cwd();
-const KB_CARDS_ROOT = path.join(CWD, "content/kb");
-const KB_DEEP_ROOT = path.join(CWD, "kb/knowledge-base");
+interface RetrievalCache {
+  index: BuiltIndex;
+  bm25: ReturnType<typeof buildBm25>;
+  fingerprint: SourceFingerprint;
+}
 
-const SUBJECT_DIRS = [
-  "dsa",
-  "dbms",
-  "oops",
-  "operating-systems",
-  "computer-networks",
-  "system-design",
-  "software-engineering",
-];
+let cached: RetrievalCache | null = null;
+let loading: Promise<RetrievalCache> | null = null;
 
-const SUBDIRS = ["notes", "tutorials", "sheets"];
-
-const MAX_FILES_PER_DIR = 40;
-const MAX_ROADMAP_CONTENT = 500;
-const MAX_DOC_SIZE = 6000;
-
-async function readMarkdownFiles(dir: string, maxFiles = MAX_FILES_PER_DIR): Promise<StoredDoc[]> {
-  const docs: StoredDoc[] = [];
-  let entries: string[] = [];
-  try {
-    entries = await fs.readdir(dir);
-  } catch {
-    return docs;
+function chunkAll(sources: RawSourceDoc[]): ReturnType<typeof chunkDoc> {
+  const chunks = sources.flatMap((s) => chunkDoc(s));
+  if (process.env.KB_DEBUG) {
+    console.log(`[corpus] chunked ${sources.length} sources → ${chunks.length} chunks`);
   }
-  const files = entries.filter((e) => e.endsWith(".md")).slice(0, maxFiles);
-  for (const file of files) {
-    const full = path.join(dir, file);
-    let content: string;
-    try {
-      content = await fs.readFile(full, "utf-8");
-    } catch {
-      continue;
+  return chunks;
+}
+
+async function loadOnce(): Promise<RetrievalCache> {
+  const persisted = await readIndex();
+  if (persisted) {
+    const index = hydrateIndex(persisted);
+    cached = { index, bm25: buildBm25(index.docs), fingerprint: persisted.fingerprint };
+    if (process.env.KB_DEBUG) {
+      console.log(
+        `[corpus] loaded persisted index ${INDEX_FILE}: ${index.stats.chunks} chunks, built ${persisted.builtAt}`
+      );
     }
-    if (content.length < 20) continue;
-    docs.push({
-      id: `note:${path.relative(CWD, full)}`,
-      title: path.basename(file, ".md").replace(/[-_]+/g, " "),
-      path: path.relative(CWD, full),
-      content: content.slice(0, MAX_DOC_SIZE),
-      kind: "note",
-    });
+    return cached;
   }
-  return docs;
+
+  // Fallback: build in memory (dev convenience — logs a warning; the
+  // persisted index is always preferred in production).
+  console.warn(
+    `[corpus] persisted index missing or stale (${INDEX_FILE}). Building in memory — run \`npm run kb:build\` for a persistent, fast-start index.`
+  );
+  const started = Date.now();
+  const sources = await collectSources();
+  const chunks = chunkAll(sources);
+  const fingerprint = { files: {} };
+  const index = buildIndexFromChunks(chunks, fingerprint, Date.now() - started);
+  cached = { index, bm25: buildBm25(index.docs), fingerprint };
+  return cached;
 }
 
-async function loadCardDocs(): Promise<StoredDoc[]> {
-  const kb = await loadKB();
-  if (!kb.ok) return [];
-  const all = [
-    ...kb.value.tasks,
-    ...kb.value.antiPatterns,
-    ...kb.value.decisions,
-    ...kb.value.mentorNotes,
-    ...kb.value.opportunities,
-  ];
-  return all.map((c) => ({
-    id: `card:${c.id}`,
-    title: c.title,
-    path: `content/kb/${c.type}/${c.id}.md`,
-    content: `${c.title}. ${c.description} ${c.content}`.slice(0, MAX_DOC_SIZE),
-    kind: "card" as const,
-  }));
+export function getRetrievalIndex(): Promise<RetrievalCache> {
+  if (cached) return Promise.resolve(cached);
+  if (loading) return loading;
+  loading = loadOnce().finally(() => {
+    loading = null;
+  });
+  return loading;
 }
 
-async function loadDeepDocs(): Promise<StoredDoc[]> {
-  const docs: StoredDoc[] = [];
-  for (const subject of SUBJECT_DIRS) {
-    const root = path.join(KB_DEEP_ROOT, subject);
-    for (const sub of SUBDIRS) {
-      docs.push(...(await readMarkdownFiles(path.join(root, sub))));
-    }
-  }
-  // top-level subject READMEs
-  for (const subject of SUBJECT_DIRS) {
-    docs.push(...(await readMarkdownFiles(path.join(KB_DEEP_ROOT, subject), 3)));
-  }
-  // student resources
-  docs.push(...(await readMarkdownFiles(path.join(KB_DEEP_ROOT, "student-resources"), 10)));
-  return docs;
-}
-
-async function loadRoadmapDocs(): Promise<StoredDoc[]> {
-  const docs: StoredDoc[] = [];
-  let roadmaps: string[] = [];
-  try {
-    roadmaps = await fs.readdir(path.join(KB_DEEP_ROOT, "roadmaps"));
-  } catch {
-    return docs;
-  }
-  let taken = 0;
-  for (const rm of roadmaps) {
-    if (taken >= MAX_ROADMAP_CONTENT) break;
-    const contentDir = path.join(KB_DEEP_ROOT, "roadmaps", rm, "content");
-    docs.push(...(await readMarkdownFiles(contentDir, 20)));
-    taken += docs.length;
-  }
-  return docs.slice(0, MAX_ROADMAP_CONTENT);
-}
-
-let store: VectorStore | null = null;
-let building: Promise<VectorStore> | null = null;
-
-export function getVectorStore(): Promise<VectorStore> {
-  if (store) return Promise.resolve(store);
-  if (building) return building;
-  building = (async () => {
-    const vs = new VectorStore();
-    const [cards, deep, roadmaps] = await Promise.all([
-      loadCardDocs(),
-      loadDeepDocs(),
-      loadRoadmapDocs(),
-    ]);
-    vs.add([...cards, ...deep, ...roadmaps]);
-    store = vs;
-    return vs;
-  })();
-  return building;
+/** Used by admin/KB tooling to report whether the index is up to date. */
+export async function isIndexStale(currentFingerprint: SourceFingerprint): Promise<boolean> {
+  const { fingerprint } = await getRetrievalIndex();
+  return !fingerprintsEqual(fingerprint, currentFingerprint);
 }
 
 export async function corpusStats(): Promise<{ size: number }> {
-  const vs = await getVectorStore();
-  return { size: vs.size };
+  const { index } = await getRetrievalIndex();
+  return { size: index.docs.length };
 }
